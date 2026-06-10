@@ -1,127 +1,84 @@
-import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useStore } from '../../store/useStore'
 import { HolographicPanel } from './HolographicPanel'
 
-const VIEW_LEVELS = [
-  { id: 'universe' as const, label: 'Universe', icon: '✦' },
-  { id: 'galaxy' as const, label: 'Galaxy', icon: '◈' },
-  { id: 'solarSystem' as const, label: 'Solar System', icon: '◎' },
-  { id: 'planet' as const, label: 'Planet', icon: '●' },
-  { id: 'surface' as const, label: 'Surface', icon: '▦' },
-]
-
 export const Minimap: React.FC = () => {
-  const showMinimap = useStore((s) => s.showMinimap)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { camera } = useThree()
   const currentView = useStore((s) => s.currentView)
-  const selectedObject = useStore((s) => s.selectedObject)
+  const showMinimap = useStore((s) => s.showMinimap)
+
+  useFrame(() => {
+    if (!canvasRef.current || !showMinimap) return
+
+    const ctx = canvasRef.current.getContext('2d')
+    if (!ctx) return
+
+    const w = canvasRef.current.width
+    const h = canvasRef.current.height
+
+    ctx.fillStyle = 'rgba(5, 8, 15, 0.8)'
+    ctx.fillRect(0, 0, w, h)
+
+    ctx.strokeStyle = 'rgba(68, 136, 204, 0.1)'
+    ctx.lineWidth = 0.5
+    for (let i = 0; i <= 5; i++) {
+      const x = (w / 5) * i
+      const y = (h / 5) * i
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, h)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(w, y)
+      ctx.stroke()
+    }
+
+    const cameraX = (w / 2) + (camera.position.x / 500) * (w / 2)
+    const cameraY = (h / 2) - (camera.position.z / 500) * (h / 2)
+
+    ctx.fillStyle = '#88ccff'
+    ctx.beginPath()
+    ctx.arc(cameraX, cameraY, 4, 0, Math.PI * 2)
+    ctx.fill()
+
+    ctx.strokeStyle = '#88ccff'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(cameraX, cameraY)
+    ctx.lineTo(cameraX + Math.cos(camera.rotation.z) * 15, cameraY + Math.sin(camera.rotation.z) * 15)
+    ctx.stroke()
+  })
 
   if (!showMinimap) return null
 
-  const currentLevelIndex = VIEW_LEVELS.findIndex((l) => l.id === currentView)
-
   return (
-    <div
+    <HolographicPanel
       style={{
         position: 'fixed',
-        bottom: '80px',
-        left: '20px',
-        zIndex: 100,
+        bottom: '20px',
+        right: '20px',
         width: '180px',
+        zIndex: 40,
+        padding: '12px',
       }}
     >
-      <HolographicPanel style={{ padding: '12px' }}>
-        {/* Current location */}
-        <div style={{
-          fontSize: '10px',
-          color: '#4488aa',
-          textTransform: 'uppercase' as const,
-          letterSpacing: '2px',
-          marginBottom: '8px',
-          fontWeight: 600,
-        }}>
-          Navigation
-        </div>
-
-        {/* View level indicators */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {VIEW_LEVELS.map((level, i) => {
-            const isActive = i <= currentLevelIndex
-            const isCurrent = level.id === currentView
-            return (
-              <div
-                key={level.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '4px 6px',
-                  borderRadius: '4px',
-                  background: isCurrent
-                    ? 'rgba(68, 136, 204, 0.15)'
-                    : 'transparent',
-                  border: isCurrent
-                    ? '1px solid rgba(68, 136, 204, 0.3)'
-                    : '1px solid transparent',
-                  transition: 'all 0.2s',
-                }}
-              >
-                <span style={{
-                  fontSize: '12px',
-                  color: isActive ? '#88ccff' : '#334466',
-                  width: '16px',
-                  textAlign: 'center' as const,
-                }}>
-                  {level.icon}
-                </span>
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: isCurrent ? 600 : 400,
-                  color: isCurrent ? '#c0d8f0' : isActive ? '#556688' : '#334466',
-                  letterSpacing: '0.5px',
-                }}>
-                  {level.label}
-                </span>
-                {/* Connection line */}
-                {i < VIEW_LEVELS.length - 1 && (
-                  <span style={{
-                    width: '1px',
-                    height: '8px',
-                    background: isActive ? 'rgba(68, 136, 204, 0.3)' : 'rgba(51, 52, 102, 0.3)',
-                    marginLeft: '2px',
-                  }} />
-                )}
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Selected object info */}
-        {selectedObject && (
-          <div style={{
-            marginTop: '8px',
-            paddingTop: '8px',
-            borderTop: '1px solid rgba(68, 136, 204, 0.1)',
-          }}>
-            <div style={{
-              fontSize: '9px',
-              color: '#446688',
-              textTransform: 'uppercase' as const,
-              letterSpacing: '1.5px',
-              marginBottom: '4px',
-            }}>
-              Selected
-            </div>
-            <div style={{
-              fontSize: '11px',
-              color: '#88aacc',
-              fontWeight: 500,
-            }}>
-              {selectedObject.name}
-            </div>
-          </div>
-        )}
-      </HolographicPanel>
-    </div>
+      <canvas
+        ref={canvasRef}
+        width={150}
+        height={150}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: 'auto',
+          borderRadius: '4px',
+        }}
+      />
+      <div style={{ fontSize: '10px', color: '#aabbcc', marginTop: '8px', textAlign: 'center' }}>
+        {currentView}
+      </div>
+    </HolographicPanel>
   )
 }

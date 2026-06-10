@@ -1,158 +1,65 @@
 import React from 'react'
+import { motion } from 'framer-motion'
 import { useStore } from '../../store/useStore'
-import { HolographicPanel, GlassButton } from './HolographicPanel'
 
 export const NavControls: React.FC = () => {
-  const currentView = useStore((s) => s.currentView)
-  const setCurrentView = useStore((s) => s.setCurrentView)
-  const setFocusTarget = useStore((s) => s.setFocusTarget)
   const autoRotate = useStore((s) => s.autoRotate)
   const setAutoRotate = useStore((s) => s.setAutoRotate)
   const showLabels = useStore((s) => s.showLabels)
   const setShowLabels = useStore((s) => s.setShowLabels)
   const showOrbits = useStore((s) => s.showOrbits)
   const setShowOrbits = useStore((s) => s.setShowOrbits)
-  const timeScale = useStore((s) => s.timeScale)
-  const setTimeScale = useStore((s) => s.setTimeScale)
   const showMinimap = useStore((s) => s.showMinimap)
   const setShowMinimap = useStore((s) => s.setShowMinimap)
-  const showSearch = useStore((s) => s.showSearch)
-  const setShowSearch = useStore((s) => s.setShowSearch)
 
-  const handleZoomOut = () => {
-    const views = ['surface', 'planet', 'solarSystem', 'galaxy', 'universe'] as const
-    const currentIndex = views.indexOf(currentView as typeof views[number])
-    if (currentIndex < views.length - 1) {
-      const targetView = views[currentIndex + 1]
-      
-      // Calculate position based on target view
-      let position: [number, number, number]
-      let distance: number
-      
-      switch (targetView) {
-        case 'universe':
-          position = [0, 50, 200]
-          distance = 200
-          break
-        case 'galaxy':
-          position = [0, 20, 80]
-          distance = 80
-          break
-        case 'solarSystem':
-          position = [0, 10, 40]
-          distance = 40
-          break
-        default:
-          position = [0, 5, 20]
-          distance = 20
-      }
-      
-      setFocusTarget({
-        objectId: 'origin',
-        position,
-        viewLevel: targetView,
-        distance,
-      })
-    }
-  }
-
-  const handleZoomIn = () => {
-    const views = ['universe', 'galaxy', 'solarSystem', 'planet', 'surface'] as const
-    const currentIndex = views.indexOf(currentView as typeof views[number])
-    if (currentIndex < views.length - 1) {
-      setFocusTarget({
-        objectId: 'origin',
-        position: [0, 0, 0],
-        viewLevel: views[currentIndex + 1],
-        distance: currentIndex === 0 ? 80 : currentIndex === 1 ? 40 : currentIndex === 2 ? 10 : 3,
-      })
-    }
-  }
+  const buttonStyle = (isActive: boolean): React.CSSProperties => ({
+    padding: '8px 12px',
+    margin: '4px',
+    background: isActive ? 'rgba(68, 136, 204, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+    border: isActive ? '1px solid rgba(68, 136, 204, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '6px',
+    color: isActive ? '#88ccff' : '#8899aa',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: 500,
+    fontFamily: 'inherit',
+    backdropFilter: 'blur(10px)',
+    transition: 'all 0.2s',
+    display: 'inline-block',
+  })
 
   return (
-    <div
+    <motion.div
       style={{
         position: 'fixed',
+        left: '20px',
         bottom: '20px',
-        right: '20px',
-        zIndex: 100,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
+        zIndex: 40,
+        background: 'linear-gradient(135deg, rgba(68, 136, 204, 0.1) 0%, rgba(34, 68, 102, 0.05) 100%)',
+        border: '1px solid rgba(68, 136, 204, 0.2)',
+        borderRadius: '8px',
+        backdropFilter: 'blur(10px)',
+        padding: '12px',
+        boxShadow: '0 8px 32px rgba(68, 136, 204, 0.1)',
       }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.3 }}
     >
-      {/* Zoom controls */}
-      <HolographicPanel style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <GlassButton onClick={handleZoomIn}>
-          <span style={{ fontSize: '16px', lineHeight: 1 }}>＋</span>
-        </GlassButton>
-        <GlassButton onClick={handleZoomOut}>
-          <span style={{ fontSize: '16px', lineHeight: 1 }}>−</span>
-        </GlassButton>
-      </HolographicPanel>
-
-      {/* Settings */}
-      <HolographicPanel style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <GlassButton
-          onClick={() => setAutoRotate(!autoRotate)}
-          active={autoRotate}
-          style={{ fontSize: '10px', padding: '6px 8px', textAlign: 'center' }}
-        >
-          Auto
-        </GlassButton>
-        <GlassButton
-          onClick={() => setShowLabels(!showLabels)}
-          active={showLabels}
-          style={{ fontSize: '10px', padding: '6px 8px', textAlign: 'center' }}
-        >
-          Labels
-        </GlassButton>
-        <GlassButton
-          onClick={() => setShowOrbits(!showOrbits)}
-          active={showOrbits}
-          style={{ fontSize: '10px', padding: '6px 8px', textAlign: 'center' }}
-        >
-          Orbits
-        </GlassButton>
-        <GlassButton
-          onClick={() => setShowMinimap(!showMinimap)}
-          active={showMinimap}
-          style={{ fontSize: '10px', padding: '6px 8px', textAlign: 'center' }}
-        >
-          Map
-        </GlassButton>
-      </HolographicPanel>
-
-      {/* Time scale */}
-      <HolographicPanel style={{ padding: '8px' }}>
-        <div style={{
-          fontSize: '9px',
-          color: '#446688',
-          textTransform: 'uppercase' as const,
-          letterSpacing: '1.5px',
-          textAlign: 'center' as const,
-          marginBottom: '4px',
-        }}>
-          Speed
-        </div>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          {[0, 1, 10, 100].map((speed) => (
-            <GlassButton
-              key={speed}
-              onClick={() => setTimeScale(speed)}
-              active={timeScale === speed}
-              style={{
-                fontSize: '9px',
-                padding: '4px 6px',
-                flex: 1,
-                textAlign: 'center',
-              }}
-            >
-              {speed}x
-            </GlassButton>
-          ))}
-        </div>
-      </HolographicPanel>
-    </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <button onClick={() => setAutoRotate(!autoRotate)} style={buttonStyle(autoRotate)}>
+          ⟳ Auto-Rotate
+        </button>
+        <button onClick={() => setShowLabels(!showLabels)} style={buttonStyle(showLabels)}>
+          ⊕ Labels
+        </button>
+        <button onClick={() => setShowOrbits(!showOrbits)} style={buttonStyle(showOrbits)}>
+          ◯ Orbits
+        </button>
+        <button onClick={() => setShowMinimap(!showMinimap)} style={buttonStyle(showMinimap)}>
+          ⊞ Minimap
+        </button>
+      </div>
+    </motion.div>
   )
 }

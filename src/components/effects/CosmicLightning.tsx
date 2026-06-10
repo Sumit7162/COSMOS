@@ -91,6 +91,7 @@ export const CosmicLightning: React.FC<CosmicLightningProps> = ({
   color = '#88ccff',
   branches = 3,
 }) => {
+  console.log('[Debug] CosmicLightning mounting at', position, 'branches:', branches)
   const groupRef = useRef<THREE.Group>(null)
   const glowRef = useRef<THREE.Mesh>(null)
   const timeRef = useRef(0)

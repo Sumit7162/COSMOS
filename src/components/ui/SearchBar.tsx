@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../../store/useStore'
 import { HolographicPanel } from './HolographicPanel'
+import { GALAXIES } from '../../data/galaxies'
+import { SUN_DATA, PLANETS, MOONS } from '../../data/solarSystem'
+import type { CelestialObject, ViewLevel } from '../../types/celestial'
 
 export const SearchBar: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false)
@@ -9,8 +12,11 @@ export const SearchBar: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const setSearchQuery = useStore((s) => s.setSearchQuery)
   const searchResults = useStore((s) => s.searchResults)
+  const setSearchResults = useStore((s) => s.setSearchResults)
   const setSelectedObject = useStore((s) => s.setSelectedObject)
   const setFocusTarget = useStore((s) => s.setFocusTarget)
+
+  const searchableObjects: CelestialObject[] = [SUN_DATA, ...PLANETS, ...MOONS, ...GALAXIES]
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -27,6 +33,30 @@ export const SearchBar: React.FC = () => {
   const handleSearch = (term: string) => {
     setSearchTerm(term)
     setSearchQuery(term)
+
+    const normalizedTerm = term.trim().toLowerCase()
+    if (!normalizedTerm) {
+      setSearchResults([])
+      return
+    }
+
+    setSearchResults(
+      searchableObjects
+        .filter((object) => object.name.toLowerCase().includes(normalizedTerm))
+        .slice(0, 8)
+    )
+  }
+
+  const getFocusView = (object: CelestialObject): ViewLevel => {
+    if (object.type === 'galaxy') return 'universe'
+    if (object.type === 'star') return 'solarSystem'
+    return 'planet'
+  }
+
+  const getFocusDistance = (object: CelestialObject) => {
+    if (object.type === 'galaxy') return Math.max(object.size * 1.4, 80)
+    if (object.type === 'star') return 55
+    return Math.max(object.size * 12, 18)
   }
 
   return (
@@ -34,7 +64,7 @@ export const SearchBar: React.FC = () => {
       <input
         ref={inputRef}
         type="text"
-        placeholder="Search cosmos... (⌘K)"
+        placeholder="Search cosmos... (Ctrl+K)"
         value={searchTerm}
         onChange={(e) => handleSearch(e.target.value)}
         onFocus={() => setIsFocused(true)}
@@ -81,10 +111,11 @@ export const SearchBar: React.FC = () => {
                       setFocusTarget({
                         objectId: result.id,
                         position: result.position,
-                        viewLevel: 'planet',
-                        distance: 50,
+                        viewLevel: getFocusView(result),
+                        distance: getFocusDistance(result),
                       })
                       setSearchTerm('')
+                      setSearchResults([])
                     }}
                     style={{
                       padding: '8px',

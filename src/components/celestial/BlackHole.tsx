@@ -13,6 +13,7 @@ export const BlackHole: React.FC<BlackHoleProps> = ({
   size = 5,
   onClick,
 }) => {
+  console.log('[Debug] BlackHole mounting at', position, 'size:', size)
   const diskRef = useRef<THREE.Mesh>(null)
   const glowRef = useRef<THREE.Mesh>(null)
   const timeRef = useRef(0)

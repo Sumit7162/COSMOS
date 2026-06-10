@@ -37,7 +37,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        ✦ COSMOS ✦
+        COSMOS
       </motion.div>
 
       <motion.div

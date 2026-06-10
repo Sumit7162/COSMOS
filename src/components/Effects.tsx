@@ -6,8 +6,13 @@ export const Effects: React.FC = () => {
   const currentView = useStore((s) => s.currentView)
   const isClose = currentView === 'planet' || currentView === 'surface'
 
+  console.log('[Debug] Effects mounting, currentView:', currentView)
+
   return (
-    <EffectComposer>
+    <EffectComposer
+      depthBuffer
+      multisampling={0}
+    >
       {/* Bloom - cinematic glow for stars, nebulae, and lightning */}
       <Bloom
         intensity={isClose ? 0.2 : 0.6}

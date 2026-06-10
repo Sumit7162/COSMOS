@@ -11,6 +11,7 @@ interface GalaxyProps {
 }
 
 export const Galaxy: React.FC<GalaxyProps> = ({ data, onClick }) => {
+  console.log('[Debug] Galaxy mounting:', data.name, 'at', data.position, 'size:', data.size)
   const pointsRef = useRef<THREE.Points>(null)
   const dustRef = useRef<THREE.Points>(null)
   const glowRef = useRef<THREE.Mesh>(null)

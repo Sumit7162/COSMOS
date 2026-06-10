@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { useStore } from '../store/useStore'
 
 export const CameraController: React.FC = () => {
+  console.log('[Debug] CameraController mounting')
   const controlsRef = useRef<any>(null)
   const { camera } = useThree()
   const focusTarget = useStore((s) => s.focusTarget)
@@ -13,6 +14,7 @@ export const CameraController: React.FC = () => {
   const currentView = useStore((s) => s.currentView)
   const setCurrentView = useStore((s) => s.setCurrentView)
   const autoRotate = useStore((s) => s.autoRotate)
+  const setCamera = useStore((s) => s.setCamera)
 
   const transitionRef = useRef<{
     active: boolean
@@ -62,12 +64,19 @@ export const CameraController: React.FC = () => {
   }, [focusTarget, camera, setFocusTarget, setCurrentView, setIsTransitioning])
 
   useFrame((_, delta) => {
+    // Sync camera position to store for Minimap and other UI
+    setCamera({
+      position: [camera.position.x, camera.position.y, camera.position.z],
+      target: [0, 0, 0],
+      zoom: 1,
+    })
+
     const t = transitionRef.current
     if (!t.active) return
 
     t.elapsed += delta
     const progress = Math.min(t.elapsed / t.duration, 1)
-    
+
     // Ease in-out cubic
     const ease = progress < 0.5
       ? 4 * progress * progress * progress

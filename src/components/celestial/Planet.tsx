@@ -1,5 +1,6 @@
 import React, { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import type { PlanetData, MoonData } from '../../types/celestial'
 import { useStore } from '../../store/useStore'
@@ -19,6 +20,7 @@ export const Planet: React.FC<PlanetProps> = ({ data, moons = [], onClick }) => 
   const currentView = useStore((s) => s.currentView)
   const timeScale = useStore((s) => s.timeScale)
   const showOrbits = useStore((s) => s.showOrbits)
+  const showLabels = useStore((s) => s.showLabels)
 
   // Generate procedural texture with fractal noise
   const textureCanvas = useMemo(() => {
@@ -290,6 +292,25 @@ export const Planet: React.FC<PlanetProps> = ({ data, moons = [], onClick }) => 
             metalness={0.1}
           />
         </mesh>
+
+        {showLabels && (
+          <Html
+            position={[0, scale * 1.7, 0]}
+            center
+            distanceFactor={40}
+            style={{
+              color: '#dbeafe',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              pointerEvents: 'none',
+              textShadow: '0 0 10px rgba(80, 180, 255, 0.8)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {data.name}
+          </Html>
+        )}
 
         {/* Atmosphere glow - custom shader-like look with fresnel */}
         {data.atmosphere && (

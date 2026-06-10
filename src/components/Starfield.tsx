@@ -52,7 +52,10 @@ export const Starfield: React.FC = () => {
   const currentView = useStore((s) => s.currentView)
   const timeRef = useRef(0)
 
+  console.log('[Debug] Starfield mounting, creating', STAR_COUNT, 'stars')
+
   const { positions, colors, sizes, phases, twinkleSpeeds } = useMemo(() => {
+    console.log('[Debug] Starfield useMemo generating star data...')
     const pos = new Float32Array(STAR_COUNT * 3)
     const col = new Float32Array(STAR_COUNT * 3)
     const siz = new Float32Array(STAR_COUNT)

@@ -7,6 +7,7 @@ import { useStore } from './store/useStore'
 import { Starfield } from './components/Starfield'
 import { CameraController } from './components/CameraController'
 import { Effects } from './components/Effects'
+import { EffectsErrorBoundary } from './components/effects/EffectsErrorBoundary'
 import { UniverseScene } from './components/scenes/UniverseScene'
 import { SolarSystemScene } from './components/scenes/SolarSystemScene'
 import { PlanetSurfaceScene } from './components/scenes/PlanetSurfaceScene'
@@ -16,8 +17,15 @@ import { Minimap } from './components/ui/Minimap'
 import { NavControls } from './components/ui/NavControls'
 import { LoadingScreen } from './components/ui/LoadingScreen'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ErrorBoundaryLog = (error: Error) => {
+  console.error('[Debug] React rendering error caught:', error.message)
+  console.error('[Debug] Stack:', error.stack)
+}
+
 function SceneContent() {
   const currentView = useStore((s) => s.currentView)
+  console.log('[Debug] SceneContent rendering, currentView:', currentView)
 
   return (
     <>
@@ -39,7 +47,9 @@ function SceneContent() {
       {currentView === 'surface' && <PlanetSurfaceScene />}
 
       {/* Post-processing effects */}
-      <Effects />
+      <EffectsErrorBoundary>
+        <Effects />
+      </EffectsErrorBoundary>
 
       {/* Performance stats in development */}
       {import.meta.env.DEV && <Stats />}
@@ -101,7 +111,7 @@ const TopBar: React.FC = () => {
         onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8' }}
         onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
       >
-        <span style={{ fontSize: '18px' }}>✦</span>
+        <span style={{ fontSize: '18px' }}>*</span>
         <span>Cosmos</span>
       </div>
 
@@ -136,7 +146,7 @@ const TopBar: React.FC = () => {
               e.currentTarget.style.background = 'rgba(68, 136, 204, 0.15)'
             }}
           >
-            ℹ Info
+            Info
           </button>
         )}
 
@@ -163,7 +173,7 @@ const TopBar: React.FC = () => {
             e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
           }}
         >
-          ✦ Reset
+          Reset
         </button>
       </div>
     </div>
@@ -213,6 +223,7 @@ function App() {
                 powerPreference: 'high-performance',
               }}
               onCreated={({ gl }) => {
+                console.log('[Debug] Canvas created, WebGL context ready')
                 gl.outputColorSpace = THREE.SRGBColorSpace
               }}
               style={{ width: '100%', height: '100%' }}
@@ -244,7 +255,7 @@ function App() {
                 pointerEvents: 'none',
               }}
             >
-              Drag to orbit · Scroll to zoom · ⌘K to search
+              Drag to orbit - Scroll to zoom - Ctrl+K to search
             </div>
           </motion.div>
         )}

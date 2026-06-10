@@ -127,6 +127,7 @@ export const NebulaCloud: React.FC<NebulaProps> = ({
   opacity = 0.4,
   rotation = [0, 0, 0],
 }) => {
+  console.log('[Debug] NebulaCloud mounting at', position, 'size:', size)
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.ShaderMaterial>(null)
   const timeRef = useRef(0)

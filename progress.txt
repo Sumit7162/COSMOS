@@ -1,3 +1,0 @@
-Task 3: Create Universe Scene
-Task 6: Build Galaxy Generation System
-Task 8: Create Solar System Engine

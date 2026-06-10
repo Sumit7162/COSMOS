@@ -11,6 +11,15 @@ interface NebulaProps {
   rotation?: [number, number, number]
 }
 
+interface NebulaData {
+  pos: [number, number, number]
+  size: number
+  color: string
+  secondary: string
+  opacity: number
+  rot: [number, number, number]
+}
+
 // Vertex shader for nebula clouds
 const vertexShader = `
   varying vec2 vUv;
@@ -99,7 +108,7 @@ const fragmentShader = `
   }
 `
 
-const NEBULA_DATA = [
+const NEBULA_DATA: NebulaData[] = [
   { pos: [-350, 80, -200], size: 180, color: '#8844cc', secondary: '#4422aa', opacity: 0.4, rot: [0.2, 0.5, 0.1] },
   { pos: [200, -60, 300], size: 150, color: '#cc4488', secondary: '#882244', opacity: 0.35, rot: [-0.3, 0.7, 0.2] },
   { pos: [100, 150, -400], size: 200, color: '#4488cc', secondary: '#224488', opacity: 0.3, rot: [0.5, -0.2, 0.1] },
@@ -170,7 +179,7 @@ export const NebulaField: React.FC = () => {
           color={nebula.color}
           secondaryColor={nebula.secondary}
           opacity={nebula.opacity}
-          rotation={nebula.rot as [number, number, number]}
+          rotation={nebula.rot}
         />
       ))}
     </group>

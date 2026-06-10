@@ -1,9 +1,6 @@
 import React from 'react'
-import { useStore } from '../../store/useStore'
 
 export const PlanetSurfaceScene: React.FC = () => {
-  const selectedObject = useStore((s) => s.selectedObject)
-
   return (
     <group>
       <mesh position={[0, -50, 0]}>

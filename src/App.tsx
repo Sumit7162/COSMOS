@@ -201,6 +201,7 @@ function App() {
           >
             {/* 3D Canvas */}
             <Canvas
+              shadows
               camera={{
                 position: [0, 50, 200],
                 fov: 60,
@@ -209,9 +210,10 @@ function App() {
               }}
               gl={{
                 antialias: true,
-                shadows: true,
-                outputColorSpace: THREE.SRGBColorSpace,
-                powerPreference: "high-performance",
+                powerPreference: 'high-performance',
+              }}
+              onCreated={({ gl }) => {
+                gl.outputColorSpace = THREE.SRGBColorSpace
               }}
               style={{ width: '100%', height: '100%' }}
             >

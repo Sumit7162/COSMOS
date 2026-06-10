@@ -47,8 +47,6 @@ const fragmentShader = `
   }
 `
 
-const MILKY_WAY_CENTER: [number, number, number] = [0, 0, 0]
-
 export const Starfield: React.FC = () => {
   const pointsRef = useRef<THREE.Points>(null)
   const currentView = useStore((s) => s.currentView)

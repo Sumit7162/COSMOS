@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useCallback } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { GalaxyData } from '../../types/celestial'
 import { generateGalaxyPositionsAndColors } from '../../utils/math'
@@ -52,7 +52,7 @@ export const Galaxy: React.FC<GalaxyProps> = ({ data, onClick }) => {
     return pos
   }, [data])
 
-  const handleClick = useCallback((e: any) => {
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
     onClick(data)
   }, [data, onClick])
@@ -69,7 +69,7 @@ export const Galaxy: React.FC<GalaxyProps> = ({ data, onClick }) => {
   const isClose = currentView === 'galaxy' || currentView === 'solarSystem'
 
   return (
-    <group position={data.position}>
+    <group position={data.position} onClick={handleClick}>
       {/* Galaxy core - bright glow */}
       <mesh>
         <sphereGeometry args={[data.size * 0.04, 16, 16]} />
@@ -97,21 +97,15 @@ export const Galaxy: React.FC<GalaxyProps> = ({ data, onClick }) => {
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={positions.length / 3}
-            array={positions}
-            itemSize={3}
+            args={[positions, 3]}
           />
           <bufferAttribute
             attach="attributes-color"
-            count={colors.length / 3}
-            array={colors}
-            itemSize={3}
+            args={[colors, 3]}
           />
           <bufferAttribute
             attach="attributes-size"
-            count={sizes.length}
-            array={sizes}
-            itemSize={1}
+            args={[sizes, 1]}
           />
         </bufferGeometry>
         <pointsMaterial
@@ -131,9 +125,7 @@ export const Galaxy: React.FC<GalaxyProps> = ({ data, onClick }) => {
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
-              count={dustPositions.length / 3}
-              array={dustPositions}
-              itemSize={3}
+              args={[dustPositions, 3]}
             />
           </bufferGeometry>
           <pointsMaterial
